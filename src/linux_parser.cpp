@@ -67,7 +67,27 @@ vector<int> LinuxParser::Pids() {
 }
 
 // TODO: Read and return the system memory utilization
-float LinuxParser::MemoryUtilization() { return 0.0; }
+float LinuxParser::MemoryUtilization() 
+{ 
+  float totalUsedMem, bufferMem, buffers, cachedMem, swap;
+  std::vector<std::string> processTags {
+    "MemTotal",
+    "MemFree",
+    "Buffers",
+    "Cached",
+    "SReclaimable",
+    "Shmem",
+    "SwapTotal",
+    "SwapFree"
+  };
+
+  totalUsedMem = /*MemTotal - MemFree*/ 0.00;
+  buffers = 0.00 /*Buffers*/;
+  cachedMem = /*Cached + SReclaimable - Shmem */ 0.00 ;
+  swap = /*SwapTotal - SwapFree */ 0.00;
+  bufferMem = totalUsedMem - ( buffers + cachedMem );
+  return 0.0; 
+}
 
 // TODO: Read and return the system uptime
 long LinuxParser::UpTime() { return 0; }
