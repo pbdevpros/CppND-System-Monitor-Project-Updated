@@ -10,7 +10,9 @@ using std::string;
 using std::to_string;
 using std::vector;
 
-// DONE: An example of how to read data from the filesystem
+template<typename T>
+T ParseFileForKey(std::string filepath, std::string key);
+
 string LinuxParser::OperatingSystem() {
   string line;
   string key;
@@ -33,7 +35,6 @@ string LinuxParser::OperatingSystem() {
   return value;
 }
 
-// DONE: An example of how to read data from the filesystem
 string LinuxParser::Kernel() {
   string os, kernel;
   string line;
@@ -66,27 +67,23 @@ vector<int> LinuxParser::Pids() {
   return pids;
 }
 
-// TODO: Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() 
 { 
-  float totalUsedMem, bufferMem, buffers, cachedMem, swap;
-  std::vector<std::string> processTags {
-    "MemTotal",
-    "MemFree",
-    "Buffers",
-    "Cached",
-    "SReclaimable",
-    "Shmem",
-    "SwapTotal",
-    "SwapFree"
-  };
+  float totalUsedMem;
+  int memTotal, memFree;
+  std::vector<std::string> kMemTotal {"MemTotal" }, kMemFree {"MemFree"};
+  
+  // parse files for key
+  memTotal = ParseFileForKey<int>(kProcDirectory + kMeminfoFilename, kMemTotal);
+  memFree = ParseFileForKey<int>(kProcDirectory + kMeminfoFilename, kMemFree);
 
-  totalUsedMem = /*MemTotal - MemFree*/ 0.00;
-  buffers = 0.00 /*Buffers*/;
-  cachedMem = /*Cached + SReclaimable - Shmem */ 0.00 ;
-  swap = /*SwapTotal - SwapFree */ 0.00;
-  bufferMem = totalUsedMem - ( buffers + cachedMem );
-  return 0.0; 
+  // calclate % mem utilized
+  if (memTotal && memFree) {
+    totalUsedMem = (memTotal - memFree) / memTotal;
+    return totalUsedMem; 
+  } else {
+    throw 255; // error parsing file
+  }
 }
 
 // TODO: Read and return the system uptime
@@ -108,11 +105,30 @@ long LinuxParser::IdleJiffies() { return 0; }
 // TODO: Read and return CPU utilization
 vector<string> LinuxParser::CpuUtilization() { return {}; }
 
-// TODO: Read and return the total number of processes
-int LinuxParser::TotalProcesses() { return 0; }
+int LinuxParser::TotalProcesses() 
+{ 
+  int totalProcesses;
+  std::string kTotalProcesses {"processes"};
+  totalProcesses = ParseFileForKey(kProcDirectory + kStatFilename, kTotalProcesses );
 
-// TODO: Read and return the number of running processes
-int LinuxParser::RunningProcesses() { return 0; }
+  if (totalProcesses) {
+    return totalProcesses;
+  } else {
+    throw 255;
+  }
+}
+
+int LinuxParser::RunningProcesses() 
+{ 
+  int runningProcesses;
+  std::string kRunningProcesses{"procs_running"};
+  runningProcesses = ParseFileForKey(kProcDirectory + kStatFilename, kRunningProcesses );
+  if (runningProcesses) {
+    return runningProcesses;
+  } else {
+    throw 255;
+  }
+}
 
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
@@ -133,3 +149,31 @@ string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+
+
+// ===========================================================================================================================
+//                                                          UTILITY FUNCTIONS
+// ===========================================================================================================================
+
+template<typename T>
+T ParseFileForKey(std::string filepath, std::string key)
+{
+  std::string param;
+  T value;
+  
+  // parse file by each line
+  std::ifstream stream(filepath);
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::istringstream linestream(line);
+      while (linestream >> param >> value) {
+        if (param == key) {
+          return value;
+        }
+      }
+    }
+  }
+
+  // could not find key
+  return NULL;
+}
