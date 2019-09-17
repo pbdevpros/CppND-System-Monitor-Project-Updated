@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <string>
 #include <vector>
-
 #include "linux_parser.h"
 
 using std::stof;
@@ -162,7 +161,7 @@ T ParseFileForKey(std::string filepath, std::string key)
   T value;
   
   // parse file by each line
-  std::ifstream stream(filepath);
+  std::ifstream filestream(filepath);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
@@ -176,4 +175,24 @@ T ParseFileForKey(std::string filepath, std::string key)
 
   // could not find key
   return NULL;
+}
+
+std::string ParseFileForLineWithKey(std::string filepath, std::string key)
+{
+  std::string lineWithKey, param, value, line;
+  
+  // parse file by each line
+  std::ifstream filestream(filepath);
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::istringstream linestream(line);
+      while (linestream >> param >> value) {
+        if (param == key) {
+          lineWithKey = line;
+        }
+      }
+    }
+  }
+
+  return lineWithKey;
 }

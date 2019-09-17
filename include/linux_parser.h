@@ -4,6 +4,7 @@
 #include <fstream>
 #include <regex>
 #include <string>
+#include <sstream>
 
 namespace LinuxParser {
 // Paths
@@ -45,6 +46,7 @@ long Jiffies();
 long ActiveJiffies();
 long ActiveJiffies(int pid);
 long IdleJiffies();
+std::string ParseFileForLineWithKey(std::string filepath, std::string key);
 
 // Processes
 std::string Command(int pid);
