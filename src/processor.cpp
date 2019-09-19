@@ -4,9 +4,20 @@
 // TODO: Return the aggregate CPU utilization
 float Processor::Utilization() 
 { 
+    int prevIdle = idle_;
+    int prevTotal = total_;
+    saveUtilizationStatistics();
+    int diffTotal = total_ - prevTotal;
+    int diffIdle = idle_ - prevIdle;
+    return ( (diffTotal - diffIdle) / diffTotal ) ;
+}
+
+/// @throws 255 CPU stats file read incorrectly
+void Processor::saveUtilizationStatistics()
+{
     std::unordered_map<std::string, int> CPUstats = {
-        { "User" , 0 },
-        { "Nice", 0 },
+        { "tUser" , 0 },
+        { "tNice", 0 },
         { "tSystem", 0},
         { "tIdle", 0},
         { "tIOwait", 0},
@@ -23,8 +34,13 @@ float Processor::Utilization()
 
     std::istringstream linestream(value);
     for ( auto element : CPUstats ) {
+        if (element.second < 0 ) {
+            throw 255;
+        }
         linestream >> element.second;
     }
 
-    // TODO: use algo to calculate the actual stats and save as member variables....
+    // get idle and non-idle time
+    idle_ = CPUstats["tIdle"] + CPUstats["tIOwait"];
+    total_= CPUstats["tUser"] + CPUstats["tNice"] + CPUstats["tSystem"] + CPUstats["tIrq"] + CPUstats["tSoftIrq"] + CPUstats["tSteal"] + idle_;
 }

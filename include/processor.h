@@ -9,13 +9,18 @@ class Processor {
   float Utilization();  // TODO: See src/processor.cpp
 
  private:
-  int prevTotal {0}; // total time running
-  int prevIdle {0}; // total idle time
+  void saveUtilizationStatistics();
+  int total_ {0}; // total time running
+  int idle_ {0}; // total idle time
 };
 
 Processor::Processor() 
 {
-    // TODO: Assign member variables...
+  try {
+    saveUtilizationStatistics();
+  } catch (int e) {
+    throw;
+  }
 }
 
 #endif
