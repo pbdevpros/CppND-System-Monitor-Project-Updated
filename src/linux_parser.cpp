@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <linux/delay.h>
 #include "linux_parser.h"
 
 using std::stof;
@@ -85,24 +87,49 @@ float LinuxParser::MemoryUtilization()
   }
 }
 
-// TODO: Read and return the system uptime
-long LinuxParser::UpTime() { return 0; }
+long LinuxParser::UpTime() { 
+  std::string line, token;
+  std::ifstream f(kProcDirectory + kUptimeFilename) ;
+  if (f.is_open()) {
+      std::getline(f, line);
+      std::istringstream linestream(line);
+      linestream >> token;
+  }
+  return (long) std::stof(token); 
+}
 
-// TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
+long LinuxParser::Jiffies() { 
+  return ReadCPUstats(2) // 
+}
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
-// TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
+long LinuxParser::ActiveJiffies() {
+  return ReadCPUstats(0); 
+}
 
-// TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
+long LinuxParser::IdleJiffies() {
+  return ReadCPUstats(1); 
+}
 
-// TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+vector<string> LinuxParser::CpuUtilization() { 
+  // get the change in utilization of a given period of time
+  auto prev_total = Jiffies();
+  auto prev_idle = IdleJiffies();
+  mdelay(WAITTIME); // delay in ms
+  
+  auto total = Jiffies();
+  auto idle = IdleJiffies();
+  
+  total -= prev_total;
+  idle -= prev_idle;
+
+  // calculate  utilization
+  auto utilization = ( total - idle ) / total;
+  return Format::ElapsedTime(utilization);
+}
 
 int LinuxParser::TotalProcesses() 
 { 
@@ -157,7 +184,7 @@ long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
 template<typename T>
 T ParseFileForKey(std::string filepath, std::string key)
 {
-  std::string param;
+  std::string param, line;
   T value;
   
   // parse file by each line
@@ -195,4 +222,48 @@ std::string ParseFileForLineWithKey(std::string filepath, std::string key)
   }
 
   return lineWithKey;
+}
+
+/// @brief Load total CPU stats from /proc/stat and return number of jiffies
+/// @param jiffyType Integer, can be one of:
+///                            0 - returns active jiffies
+///                            1 - returns idle jiffies
+///                            2 - returns total jiffies
+/// @throws 255, if parameter jiffyType is not one of the possible integers                         
+long LinuxParser::ReadCPUstats(int jiffyType)
+{
+  std::unordered_map<CPUStates, long> CPUstats = {
+    { kUser_ , 0 },
+    { kNice_ , 0 },
+    { kSystem_, 0},
+    { kIdle_, 0},
+    { kIOwait_, 0},
+    { kIRQ_, 0 },
+    { kSoftIRQ_ , 0},
+    { kSteal_, 0},
+    { kGuest_, 0},
+    { kGuestNice_, 0}
+  };
+
+  // parse /proc/stat file for information on CPU utilization
+  std::string key {"cpu"}, filepath {LinuxParser::kProcDirectory + LinuxParser::kStatFilename};
+  auto value = ParseFileForLineWithKey(filepath, key);
+
+  std::istringstream linestream(value);
+  for ( auto element : CPUstats ) {
+      if (element.second < 0 ) {
+          throw 255;
+      }
+      linestream >> std::stol(element.second);
+  }
+
+  if ( jiffyType == 0 ) { // return active jiffies
+    return ( stats[kUser_] + stats[kNice_] + stats[kSystem_] + stats[kIRQ_] + stats[kSoftIRQ_] + stats[kSteal_] ) ;
+  } else ( jiffyType == 1 ) { // return idle jiffies
+    return ( stats[kIdle_] + stats[kIOwait_] );
+  } else ( jiffyType == 2 ) { // return total jiffies
+    return ( stats[kUser_] + stats[kNice_] + stats[kSystem_] + stats[kIRQ_] + stats[kSoftIRQ_] + stats[kSteal_] + stats[kIdle_] + stats[kIOwait_] ) ;
+  } else {
+    throw 255;
+  }
 }
