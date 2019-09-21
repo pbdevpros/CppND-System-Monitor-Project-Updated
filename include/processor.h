@@ -6,10 +6,10 @@
 class Processor {
  public:
   Processor() ;
-  float Utilization();  // TODO: See src/processor.cpp
+  float Utilization();
 
  private:
-  void saveUtilizationStatistics();
+  void SaveUtilizationStatistics();
   int total_ {0}; // total time running
   int idle_ {0}; // total idle time
 };
@@ -17,7 +17,7 @@ class Processor {
 Processor::Processor() 
 {
   try {
-    saveUtilizationStatistics();
+    SaveUtilizationStatistics();
   } catch (int e) {
     throw;
   }
