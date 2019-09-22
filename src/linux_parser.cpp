@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <linux/delay.h>
 #include "linux_parser.h"
 
 using std::stof;
@@ -114,7 +113,7 @@ vector<string> LinuxParser::CpuUtilization() {
   // get the change in utilization of a given period of time
   auto prev_total = Jiffies();
   auto prev_idle = IdleJiffies();
-  mdelay(WAITTIME); // delay in ms
+  sleep(WAITTIME); // delay
   
   auto total = Jiffies();
   auto idle = IdleJiffies();

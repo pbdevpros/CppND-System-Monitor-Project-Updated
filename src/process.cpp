@@ -15,7 +15,7 @@ int Process::Pid() { return pid_; }
 float Process::CpuUtilization() {
     float prev_total_up_time = LinuxParser::UpTime(pid_) / HZ;
     float prev_active_time = LinuxParser::ActiveJiffies(pid_) / HZ ;
-    mdelay(LinuxParser::WAITTIME); // ms delay
+    sleep(LinuxParser::WAITTIME); // delay
     float total_up_time = LinuxParser::UpTime(pid_) / HZ ;
     float active_time = LinuxParser::ActiveJiffies(pid_) / HZ ;
     total_up_time -= prev_total_up_time;

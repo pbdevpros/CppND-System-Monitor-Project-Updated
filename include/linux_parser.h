@@ -49,7 +49,7 @@ long ActiveJiffies(int pid);
 long IdleJiffies();
 long ReadCPUstats(int);
 std::string ParseFileForLineWithKey(std::string filepath, std::string key);
-static constexpr int WAITTIME (1000);
+static constexpr int WAITTIME (1);
 
 // Processes
 std::string Command(int pid);
