@@ -164,22 +164,22 @@ string LinuxParser::Command(int pid) {
 }
 
 string LinuxParser::Ram(int pid) {
-  string key ("VmSize:")
-  auto memKB = stol(ParseFileForKey( kProcDirectory + to_string(pid) kStatusFilename, key));
+  string key ("VmSize:");
+  long memKB = stol(ParseFileForKey( kProcDirectory + to_string(pid) kStatusFilename, key));
   float memMB = memKB / 1024 ; 
   return to_string(memMB);
 }
 
 string LinuxParser::Uid(int pid) { 
-  string key ("Uid:")
-  auto Uid = ParseFileForKey( kProcDirectory + to_string(pid) + kStatusFilename, key);
-  return Uid;
+  string key ("Uid:");
+  auto uid = ParseFileForKey( kProcDirectory + to_string(pid) + kStatusFilename, key);
+  return uid;
 }
 
 string LinuxParser::User(int pid[[maybe_unused]]) { 
   string line ;
   string username {} ;
-  auto Uid = Uid(pid);
+  string uid = Uid(pid);
   std::ifstream fstream ( kPasswordPath );
   if (fstream.is_open()) {
     while (getline( fstream, line ) ) {
@@ -200,7 +200,7 @@ long LinuxParser::UpTime(int pid) {
   int counter, field = 22 ; // pid up time is the 22nd field in /proc/[pid]/stat
   
   // read the time when the pid began
-  std::ifstream fstream ( kProcDirectory + to_string(pid) + kStatFilename )
+  std::ifstream fstream ( kProcDirectory + to_string(pid) + kStatFilename );
   if ( fstream.is_open() ) {
     getline( fstream, line ) ;
     int index = line.find(" ");
@@ -230,7 +230,7 @@ long LinuxParser::ActiveJiffies(int pid) {
   long utime, stime, cutime, cstime ;
 
   // read the time when the pid began
-  std::ifstream fstream ( kProcDirectory + to_string(pid) + kStatFilename )
+  std::ifstream fstream ( kProcDirectory + to_string(pid) + kStatFilename );
   if ( fstream.is_open() ) {
     getline( fstream, line ) ;
     int index = line.find(" ");
@@ -330,9 +330,9 @@ long LinuxParser::ReadCPUstats(int jiffyType)
 
   if ( jiffyType == 0 ) { // return active jiffies
     return ( stats[kUser_] + stats[kNice_] + stats[kSystem_] + stats[kIRQ_] + stats[kSoftIRQ_] + stats[kSteal_] ) ;
-  } else ( jiffyType == 1 ) { // return idle jiffies
+  } else if ( jiffyType == 1 ) { // return idle jiffies
     return ( stats[kIdle_] + stats[kIOwait_] );
-  } else ( jiffyType == 2 ) { // return total jiffies
+  } else if ( jiffyType == 2 ) { // return total jiffies
     return ( stats[kUser_] + stats[kNice_] + stats[kSystem_] + stats[kIRQ_] + stats[kSoftIRQ_] + stats[kSteal_] + stats[kIdle_] + stats[kIOwait_] ) ;
   } else {
     throw 255;
