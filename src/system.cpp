@@ -13,10 +13,20 @@ using std::size_t;
 using std::string;
 using std::vector;
 
-// TODO: Return the system's CPU
-Processor& System::Cpu() { return cpu_; }
+Processor& System::Cpu() { 
+    return cpu_; 
+}
 
-vector<Process>& System::Processes() { return processes_; }
+vector<Process>& System::Processes() {
+    if (!processes_.empty()) {
+        processes_.clear();
+    }
+    vector<int> pids = LinuxParser::Pids();
+    for (auto pid : pids ) {
+        processes_.push_back(Process(pid));
+    }
+    return processes_  
+}
 
 std::string System::Kernel() { 
     return kernel_;

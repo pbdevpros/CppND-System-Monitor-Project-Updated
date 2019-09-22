@@ -10,14 +10,14 @@
 
 class System {
  public:
-  Processor& Cpu();                   // TODO: See src/system.cpp
-  std::vector<Process>& Processes();  // TODO: See src/system.cpp
-  float MemoryUtilization(); 
-  long UpTime();                      
-  int TotalProcesses();               
-  int RunningProcesses();             
-  std::string Kernel();               
-  std::string OperatingSystem();      
+  Processor& Cpu();
+  std::vector<Process>& Processes();
+  float MemoryUtilization();
+  long UpTime();              
+  int TotalProcesses();         
+  int RunningProcesses();       
+  std::string Kernel();         
+  std::string OperatingSystem();
 
  private:
   Processor cpu_ = {};
@@ -27,6 +27,8 @@ class System {
 };
 
 System::System() {
+  cpu_ = Processor();
+  Processes(); // load processses
   os_ = LinuxParser::OperatingSystem();
   kernel_ = LinuxParser::Kernel();
 }

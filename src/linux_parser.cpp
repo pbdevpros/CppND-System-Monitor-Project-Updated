@@ -95,16 +95,12 @@ long LinuxParser::UpTime() {
       std::istringstream linestream(line);
       linestream >> token;
   }
-  return (long) std::stof(token); 
+  return (long) stof(token); 
 }
 
 long LinuxParser::Jiffies() { 
-  return ReadCPUstats(2) // 
+  return ReadCPUstats(2) 
 }
-
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
 long LinuxParser::ActiveJiffies() {
   return ReadCPUstats(0); 
@@ -156,26 +152,100 @@ int LinuxParser::RunningProcesses()
   }
 }
 
-// TODO: Read and return the command associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Command(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Command(int pid) {
+  string pid_string = to_string(pid); 
+  string command ;
+  std::fstream stream ( kProcDirectory + pid_string + kCmdlineFilename );
+  if ( stream.is_open()) {
+    getline(stream, command);
+    return command;
+  }
+}
 
-// TODO: Read and return the memory used by a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Ram(int pid) {
+  string key = "VmSize:"
+  auto memKB = stol(ParseFileForKey( kProcDirectory + to_string(pid) kStatusFilename, key));
+  float memMB = memKB / 1024 ; 
+  return to_string(memMB);
+}
 
-// TODO: Read and return the user ID associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Uid(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Uid(int pid) { 
+  string key = "Uid:"
+  auto Uid = ParseFileForKey( kProcDirectory + to_string(pid) + kStatusFilename, key);
+  return Uid;
+}
 
-// TODO: Read and return the user associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::User(int pid[[maybe_unused]]) { 
+  string line ;
+  string username {} ;
+  auto Uid = Uid(pid);
+  std::ifstream fstream ( kPasswordPath );
+  if (fstream.is_open()) {
+    while (getline( fstream, line ) ) {
+      auto found = line.find(Uid);
+      if ( found != std::string::npos ) {
+        username = line.substr(0, line.find(":"));
+        return username;
+      }
+    }
+  }
+  return username;
+}
 
-// TODO: Read and return the uptime of a process
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::UpTime(int pid) { 
+  long int sys_uptime = UpTime();
+  long int pid_uptime ;
+  string line ;
+  int counter, field = 22 ; // pid up time is the 22nd field in /proc/[pid]/stat
+  
+  // read the time when the pid began
+  std::ifstream fstream ( kProcDirectory + to_string(pid) + kStatFilename )
+  if ( fstream.is_open() ) {
+    getline( fstream, line ) ;
+    int index = line.find(" ");
+    while ( index != std::string::npos ) {
+      if (counter == (field - 1) ) { 
+        // difference between time when system and process went up
+        pid_uptime = stol(line.substr(0, index)) ; 
+        return (sys_uptime - pid_uptime) ; 
+      }
+      line = line.substr(index+1);
+      index = line.find(" ") ;
+      counter++;
+    } 
+  }
 
+  return 0;
+}
+
+long LinuxParser::ActiveJiffies(int pid) { 
+  int counter ;
+  enum statIndex { // defines the field of /proc/[pid]/stat associated with value
+    kUtime = 14,
+    kStime,
+    kCUtime,
+    kCStime
+  };
+  long utime, stime, cutime, cstime ;
+
+  // read the time when the pid began
+  std::ifstream fstream ( kProcDirectory + to_string(pid) + kStatFilename )
+  if ( fstream.is_open() ) {
+    getline( fstream, line ) ;
+    int index = line.find(" ");
+    while ( index != std::string::npos ) {
+      if (counter == kUtime - 1 ) utime = stol(line.substr(0, index))
+      if (counter == kStime - 1 ) stime = stol(line.substr(0, index))
+      if (counter == kCUtime - 1 ) cutime = stol(line.substr(0, index))
+      if (counter == kCStime - 1 ) { cstime = stol(line.substr(0, index)); break }
+      line = line.substr(index+1);
+      index = line.find(" ") ;
+      counter++;
+    } 
+  }
+  utime += stime + cutime + cstime;
+  return utime;
+}
 
 // ===========================================================================================================================
 //                                                          UTILITY FUNCTIONS
