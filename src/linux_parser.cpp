@@ -10,8 +10,7 @@ using std::string;
 using std::to_string;
 using std::vector;
 
-template<typename T>
-T ParseFileForKey(std::string filepath, std::string key);
+string ParseFileForKey(std::string filepath, std::string key);
 
 string LinuxParser::OperatingSystem() {
   string line;
@@ -71,11 +70,11 @@ float LinuxParser::MemoryUtilization()
 { 
   float totalUsedMem;
   int memTotal, memFree;
-  std::vector<std::string> kMemTotal {"MemTotal" }, kMemFree {"MemFree"};
+  string key_mem_total ("MemTotal" ), key_mem_free ("MemFree");
   
   // parse files for key
-  memTotal = ParseFileForKey(kProcDirectory + kMeminfoFilename, kMemTotal);
-  memFree = ParseFileForKey(kProcDirectory + kMeminfoFilename, kMemFree);
+  memTotal = std::stoi(ParseFileForKey(kProcDirectory + kMeminfoFilename, key_mem_total));
+  memFree = std::stoi(ParseFileForKey(kProcDirectory + kMeminfoFilename, key_mem_free));
 
   // calclate % mem utilized
   if (memTotal && memFree) {
@@ -132,7 +131,7 @@ int LinuxParser::TotalProcesses()
 { 
   int totalProcesses;
   std::string kTotalProcesses ("processes");
-  totalProcesses = ParseFileForKey(kProcDirectory + kStatFilename, kTotalProcesses );
+  totalProcesses = std::stoi(ParseFileForKey(kProcDirectory + kStatFilename, kTotalProcesses ));
 
   if (totalProcesses) {
     return totalProcesses;
@@ -145,7 +144,7 @@ int LinuxParser::RunningProcesses()
 { 
   int runningProcesses;
   std::string key ("procs_running");
-  runningProcesses = ParseFileForKey(kProcDirectory + kStatFilename, key);
+  runningProcesses = std::stoi(ParseFileForKey(kProcDirectory + kStatFilename, key));
   if (runningProcesses) {
     return runningProcesses;
   } else {
@@ -172,7 +171,7 @@ string LinuxParser::Ram(int pid) {
 
 string LinuxParser::Uid(int pid) { 
   string key ("Uid:");
-  auto uid = ParseFileForKey( kProcDirectory + to_string(pid) + kStatusFilename, key);
+  auto uid = std::stoi(ParseFileForKey( kProcDirectory + to_string(pid) + kStatusFilename, key));
   return uid;
 }
 
@@ -253,8 +252,7 @@ long LinuxParser::ActiveJiffies(int pid) {
 //                                                          UTILITY FUNCTIONS
 // ===========================================================================================================================
 
-template<typename T>
-T ParseFileForKey(std::string filepath, std::string key)
+string ParseFileForKey(std::string filepath, std::string key)
 {
   std::string param, line;
   T value;
@@ -271,7 +269,6 @@ T ParseFileForKey(std::string filepath, std::string key)
       }
     }
   }
-
   // could not find key
   return NULL;
 }
