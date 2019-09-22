@@ -3,7 +3,6 @@
 #include <vector>
 #include <map>
 #include "linux_parser.h"
-#include <iostream>
 
 using std::stof;
 using std::string;
@@ -302,7 +301,6 @@ long LinuxParser::ReadCPUstats(int jiffyType)
   if (filestream.is_open()) {
     getline(filestream, line); // first line contains info about overall CPU usage...
   }
-  std::cout << "Printing the first line of /proc/stat/ : " << line << std::endl;
 
   string param;
   std::istringstream linestream(line);
@@ -312,20 +310,16 @@ long LinuxParser::ReadCPUstats(int jiffyType)
   for ( itr =  stats.begin(); itr != stats.end(); ++itr ) {
       linestream >> param;
       itr->second = std::stol(param);
-      std::cout << "This is stat[ " << itr->first << "] = " << itr->second << ",\t is itr->second a long? \t" << sizeof(long)/sizeof(itr->second) << std::endl;
       if (itr->second < 0 ) {
           throw 255;
       }
   }
 
   if ( jiffyType == 0 ) { // return active jiffies
-    std::cout << "Active Jiffies being calculated..." << std::endl;
     return ( stats[kUser_] + stats[kNice_] + stats[kSystem_] + stats[kIRQ_] + stats[kSoftIRQ_] + stats[kSteal_] ) ;
   } else if ( jiffyType == 1 ) { // return idle jiffies
-    std::cout << "Idle Jiffies being calculated..." << std::endl;
     return ( stats[kIdle_] + stats[kIOwait_] );
   } else if ( jiffyType == 2 ) { // return total jiffies
-    std::cout << "Total Jiffies being calculated..." << std::endl;
     return ( stats[kUser_] + stats[kNice_] + stats[kSystem_] + stats[kIRQ_] + stats[kSoftIRQ_] + stats[kSteal_] + stats[kIdle_] + stats[kIOwait_] ) ;
   } else {
     throw 255;
