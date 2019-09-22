@@ -6,6 +6,11 @@
 using std::to_string;
 using std::vector;
 
+Process::Process(int pid) {
+    HZ = sysconf(_SC_CLK_TCK);
+    pid_ = pid;
+}
+
 int Process::Pid() { return pid_; }
 
 float Process::CpuUtilization() const {
