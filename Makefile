@@ -19,6 +19,13 @@ debug:
 	cmake -DCMAKE_BUILD_TYPE=debug .. && \
 	make
 
+.PHONY: test
+test:
+	mkdir -p build
+	cd build && \
+	cmake .. && \
+	make
+
 .PHONY: clean
 clean:
 	rm -rf build
