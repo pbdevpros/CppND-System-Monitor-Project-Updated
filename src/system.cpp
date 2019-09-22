@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "process.h"
-#include "processor.h"
 #include "system.h"
 
 using std::set;

@@ -315,8 +315,9 @@ long LinuxParser::ReadCPUstats(int jiffyType)
   };
 
   // parse /proc/stat file for information on CPU utilization
-  std::string key ("cpu"), filepath (kProcDirectory + kStatFilename);
-  auto value = ParseFileForLineWithKey(filepath, key);
+  std::string key ("cpu");
+  std::string filepath (kProcDirectory + kStatFilename);
+  std::string value = ParseFileForLineWithKey(filepath, key);
   string param;
 
   std::istringstream linestream(value);

@@ -13,7 +13,7 @@ int Process::Pid() { return pid_; }
 float Process::CpuUtilization() const {
     float prev_total_up_time = LinuxParser::UpTime(pid_) / HZ;
     float prev_active_time = LinuxParser::ActiveJiffies(pid_) / HZ ;
-    sleep(LinuxParser::WAITTIME); // delay
+    sleep(1); // delay
     float total_up_time = LinuxParser::UpTime(pid_) / HZ ;
     float active_time = LinuxParser::ActiveJiffies(pid_) / HZ ;
     total_up_time -= prev_total_up_time;
