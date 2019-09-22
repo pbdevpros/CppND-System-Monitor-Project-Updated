@@ -25,7 +25,7 @@ vector<Process>& System::Processes() {
     for (auto pid : pids ) {
         processes_.push_back(Process(pid));
     }
-    return processes_  
+    return processes_;
 }
 
 std::string System::Kernel() { 
