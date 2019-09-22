@@ -2,9 +2,11 @@
 
 #include "format.h"
 
-using std::string;
+static constexpr int MINUTE = 60; // taking second as base 
+static constexpr int HOUR = 60 * MINUTE;
+static constexpr int DAY = 24 * HOUR * MINUTE;
 
-string Format::ElapsedTime(long seconds) { 
+std::string Format::ElapsedTime(long seconds) { 
     std::string ftime;
     if (seconds > ( DAY- 1) ) {
         ftime = "23:59:59"; // max time reached!

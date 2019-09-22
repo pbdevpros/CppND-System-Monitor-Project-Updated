@@ -5,7 +5,6 @@
 #include <vector>
 #include "process.h"
 
-using std::string;
 using std::to_string;
 using std::vector;
 
@@ -22,11 +21,11 @@ float Process::CpuUtilization() const {
     return ( 100 * active_time / total_up_time );
 }
 
-string Process::Command() { return LinuxParser::Command(pid_); }
+std::string Process::Command() { return LinuxParser::Command(pid_); }
 
-string Process::Ram() { return LinuxParser::Ram(pid_); }
+std::string Process::Ram() { return LinuxParser::Ram(pid_); }
 
-string Process::User() { return LinuxParser::User(pid_); }
+std::string Process::User() { return LinuxParser::User(pid_); }
 
 long int Process::UpTime() { return LinuxParser::UpTime(pid_); }
 

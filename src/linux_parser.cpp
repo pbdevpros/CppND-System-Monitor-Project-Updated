@@ -10,6 +10,7 @@ using std::string;
 using std::to_string;
 using std::vector;
 
+static constexpr int WAITTIME (1);
 string ParseFileForKey(std::string filepath, std::string key);
 
 string LinuxParser::OperatingSystem() {
