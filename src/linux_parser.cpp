@@ -1,8 +1,9 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <vector>
-#include <unordered_map>
+#include <map>
 #include "linux_parser.h"
+#include <iostream>
 
 using std::stof;
 using std::string;
@@ -196,7 +197,8 @@ long LinuxParser::UpTime(int pid) {
   long int sys_uptime = UpTime();
   long int pid_uptime ;
   string line ;
-  int counter, field = 22 ; // pid up time is the 22nd field in /proc/[pid]/stat
+  int counter = 0;
+  int field = 22 ; // pid up time is the 22nd field in /proc/[pid]/stat
   
   // read the time when the pid began
   std::ifstream fstream ( kProcDirectory + to_string(pid) + kStatFilename );
@@ -219,14 +221,15 @@ long LinuxParser::UpTime(int pid) {
 }
 
 long LinuxParser::ActiveJiffies(int pid) { 
-  int counter ;
+  int counter = 0;
   enum statIndex { // defines the field of /proc/[pid]/stat associated with value
     kUtime = 14,
     kStime,
     kCUtime,
     kCStime
   };
-  long utime, stime, cutime, cstime ;
+  long utime = 0;
+  long stime = 0,  cutime = 0, cstime = 0;
   std::string line;
 
   // read the time when the pid began
@@ -243,8 +246,8 @@ long LinuxParser::ActiveJiffies(int pid) {
       index = line.find(" ") ;
       counter++;
     } 
+    utime += stime + cutime + cstime;
   }
-  utime += stime + cutime + cstime;
   return utime;
 }
 
@@ -280,7 +283,7 @@ string ParseFileForKey(std::string filepath, std::string key)
 /// @throws 255, if parameter jiffyType is not one of the possible integers                         
 long LinuxParser::ReadCPUstats(int jiffyType)
 {
-  std::unordered_map<CPUStates, long> stats = {
+  std::map<CPUStates, long> stats = {
     { kUser_ , 0 },
     { kNice_ , 0 },
     { kSystem_, 0},
@@ -299,23 +302,30 @@ long LinuxParser::ReadCPUstats(int jiffyType)
   if (filestream.is_open()) {
     getline(filestream, line); // first line contains info about overall CPU usage...
   }
+  std::cout << "Printing the first line of /proc/stat/ : " << line << std::endl;
 
   string param;
-  std::istringstream linestream(value);
+  std::istringstream linestream(line);
   linestream >> param; // first token is the word cpu
-  for ( auto element : stats ) {
+  std::map<CPUStates, long>::iterator itr;
+
+  for ( itr =  stats.begin(); itr != stats.end(); ++itr ) {
       linestream >> param;
-      element.second = std::stol(param);
-      if (element.second < 0 ) {
+      itr->second = std::stol(param);
+      std::cout << "This is stat[ " << itr->first << "] = " << itr->second << ",\t is itr->second a long? \t" << sizeof(long)/sizeof(itr->second) << std::endl;
+      if (itr->second < 0 ) {
           throw 255;
       }
   }
 
   if ( jiffyType == 0 ) { // return active jiffies
+    std::cout << "Active Jiffies being calculated..." << std::endl;
     return ( stats[kUser_] + stats[kNice_] + stats[kSystem_] + stats[kIRQ_] + stats[kSoftIRQ_] + stats[kSteal_] ) ;
   } else if ( jiffyType == 1 ) { // return idle jiffies
+    std::cout << "Idle Jiffies being calculated..." << std::endl;
     return ( stats[kIdle_] + stats[kIOwait_] );
   } else if ( jiffyType == 2 ) { // return total jiffies
+    std::cout << "Total Jiffies being calculated..." << std::endl;
     return ( stats[kUser_] + stats[kNice_] + stats[kSystem_] + stats[kIRQ_] + stats[kSoftIRQ_] + stats[kSteal_] + stats[kIdle_] + stats[kIOwait_] ) ;
   } else {
     throw 255;
