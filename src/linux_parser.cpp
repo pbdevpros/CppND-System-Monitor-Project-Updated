@@ -159,13 +159,13 @@ string LinuxParser::Command(int pid) {
   std::fstream stream ( kProcDirectory + pid_string + kCmdlineFilename );
   if ( stream.is_open()) {
     getline(stream, command);
-    return command;
   }
+  return command;
 }
 
 string LinuxParser::Ram(int pid) {
   string key ("VmSize:");
-  long memKB = stol(ParseFileForKey( kProcDirectory + to_string(pid) kStatusFilename, key));
+  long memKB = std::stol(ParseFileForKey( kProcDirectory + to_string(pid) kStatusFilename, key));
   float memMB = memKB / 1024 ; 
   return to_string(memMB);
 }
@@ -183,7 +183,7 @@ string LinuxParser::User(int pid[[maybe_unused]]) {
   std::ifstream fstream ( kPasswordPath );
   if (fstream.is_open()) {
     while (getline( fstream, line ) ) {
-      auto found = line.find(Uid);
+      auto found = line.find(uid);
       if ( found != std::string::npos ) {
         username = line.substr(0, line.find(":"));
         return username;
@@ -203,7 +203,7 @@ long LinuxParser::UpTime(int pid) {
   std::ifstream fstream ( kProcDirectory + to_string(pid) + kStatFilename );
   if ( fstream.is_open() ) {
     getline( fstream, line ) ;
-    int index = line.find(" ");
+    signed int index = line.find(" ");
     while ( index != std::string::npos ) {
       if (counter == (field - 1) ) { 
         // difference between time when system and process went up
@@ -228,17 +228,18 @@ long LinuxParser::ActiveJiffies(int pid) {
     kCStime
   };
   long utime, stime, cutime, cstime ;
+  std::string line;
 
   // read the time when the pid began
   std::ifstream fstream ( kProcDirectory + to_string(pid) + kStatFilename );
   if ( fstream.is_open() ) {
     getline( fstream, line ) ;
-    int index = line.find(" ");
+    signed int index = line.find(" ");
     while ( index != std::string::npos ) {
-      if (counter == kUtime - 1 ) utime = stol(line.substr(0, index))
-      if (counter == kStime - 1 ) stime = stol(line.substr(0, index))
-      if (counter == kCUtime - 1 ) cutime = stol(line.substr(0, index))
-      if (counter == kCStime - 1 ) { cstime = stol(line.substr(0, index)); break }
+      if (counter == kUtime - 1 ) utime = std::stol(line.substr(0, index))
+      if (counter == kStime - 1 ) stime = std::stol(line.substr(0, index))
+      if (counter == kCUtime - 1 ) cutime = std::stol(line.substr(0, index))
+      if (counter == kCStime - 1 ) { cstime = std::stol(line.substr(0, index)); break }
       line = line.substr(index+1);
       index = line.find(" ") ;
       counter++;
@@ -303,7 +304,7 @@ std::string ParseFileForLineWithKey(std::string filepath, std::string key)
 /// @throws 255, if parameter jiffyType is not one of the possible integers                         
 long LinuxParser::ReadCPUstats(int jiffyType)
 {
-  std::unordered_map<CPUStates, long> CPUstats = {
+  std::unordered_map<CPUStates, long> stats = {
     { kUser_ , 0 },
     { kNice_ , 0 },
     { kSystem_, 0},
@@ -321,7 +322,7 @@ long LinuxParser::ReadCPUstats(int jiffyType)
   auto value = ParseFileForLineWithKey(filepath, key);
 
   std::istringstream linestream(value);
-  for ( auto element : CPUstats ) {
+  for ( auto element : stats ) {
       if (element.second < 0 ) {
           throw 255;
       }
