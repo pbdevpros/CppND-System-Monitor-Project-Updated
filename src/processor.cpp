@@ -1,5 +1,14 @@
 #include "processor.h"
 
+Processor::Processor() 
+{
+  try {
+    SaveUtilizationStatistics();
+  } catch (int e) {
+    throw;
+  }
+}
+
 float Processor::Utilization() 
 { 
     int prevIdle = idle_;

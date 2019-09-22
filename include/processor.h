@@ -14,13 +14,4 @@ class Processor {
   int idle_ {0}; // total idle time
 };
 
-Processor::Processor() 
-{
-  try {
-    SaveUtilizationStatistics();
-  } catch (int e) {
-    throw;
-  }
-}
-
 #endif

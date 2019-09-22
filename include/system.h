@@ -27,11 +27,4 @@ class System {
   std::string kernel_ {};
 };
 
-System::System() {
-  cpu_ = Processor();
-  Processes(); // load processses
-  os_ = LinuxParser::OperatingSystem();
-  kernel_ = LinuxParser::Kernel();
-}
-
 #endif

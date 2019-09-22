@@ -9,6 +9,13 @@ using std::size_t;
 using std::string;
 using std::vector;
 
+System::System() {
+  cpu_ = Processor();
+  Processes(); // load processses
+  os_ = LinuxParser::OperatingSystem();
+  kernel_ = LinuxParser::Kernel();
+}
+
 Processor& System::Cpu() { 
     return cpu_; 
 }
