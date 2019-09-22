@@ -10,6 +10,7 @@
 
 class System {
  public:
+  System();
   Processor& Cpu();
   std::vector<Process>& Processes();
   float MemoryUtilization();

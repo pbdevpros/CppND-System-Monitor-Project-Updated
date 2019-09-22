@@ -3,7 +3,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
 #include "process.h"
 
 using std::string;
@@ -12,7 +11,7 @@ using std::vector;
 
 int Process::Pid() { return pid_; }
 
-float Process::CpuUtilization() {
+float Process::CpuUtilization() const {
     float prev_total_up_time = LinuxParser::UpTime(pid_) / HZ;
     float prev_active_time = LinuxParser::ActiveJiffies(pid_) / HZ ;
     sleep(LinuxParser::WAITTIME); // delay
@@ -23,13 +22,13 @@ float Process::CpuUtilization() {
     return ( 100 * active_time / total_up_time );
 }
 
-string Process::Command() { return LinuxParser::Command(pid_) }
+string Process::Command() { return LinuxParser::Command(pid_); }
 
-string Process::Ram() { return std::string Ram(int pid); }
+string Process::Ram() { return LinuxParser::Ram(pid_); }
 
-string Process::User() { return LinuxParser::User(pid_) }
+string Process::User() { return LinuxParser::User(pid_); }
 
-long int Process::UpTime() { return LinuxParser::UpTime(pid_) }
+long int Process::UpTime() { return LinuxParser::UpTime(pid_); }
 
 bool Process::operator<(Process const& a) const { 
     if ( CpuUtilization() < a.CpuUtilization() ) return true; 

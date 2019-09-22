@@ -238,7 +238,7 @@ long LinuxParser::ActiveJiffies(int pid) {
       if (counter == kUtime - 1 ) utime = std::stol(line.substr(0, index)) ;
       if (counter == kStime - 1 ) stime = std::stol(line.substr(0, index)) ;
       if (counter == kCUtime - 1 ) cutime = std::stol(line.substr(0, index)) ;
-      if (counter == kCStime - 1 ) { cstime = std::stol(line.substr(0, index)); break }
+      if (counter == kCStime - 1 ) { cstime = std::stol(line.substr(0, index)); break; }
       line = line.substr(index+1);
       index = line.find(" ") ;
       counter++;
