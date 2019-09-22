@@ -48,7 +48,6 @@ long ActiveJiffies();
 long ActiveJiffies(int pid);
 long IdleJiffies();
 long ReadCPUstats(int);
-std::string ParseFileForLineWithKey(std::string filepath, std::string key);
 
 // Processes
 std::string Command(int pid);

@@ -1,6 +1,5 @@
 #include <dirent.h>
 #include <unistd.h>
-#include <string>
 #include <vector>
 #include <unordered_map>
 #include "linux_parser.h"
@@ -273,26 +272,6 @@ string ParseFileForKey(std::string filepath, std::string key)
   return NULL;
 }
 
-std::string ParseFileForLineWithKey(std::string filepath, std::string key)
-{
-  std::string lineWithKey, param, value, line;
-  
-  // parse file by each line
-  std::ifstream filestream(filepath);
-  if (filestream.is_open()) {
-    while (std::getline(filestream, line)) {
-      std::istringstream linestream(line);
-      while (linestream >> param >> value) {
-        if (param == key) {
-          lineWithKey = line;
-        }
-      }
-    }
-  }
-
-  return lineWithKey;
-}
-
 /// @brief Load total CPU stats from /proc/stat and return number of jiffies
 /// @param jiffyType Integer, can be one of:
 ///                            0 - returns active jiffies
@@ -315,12 +294,15 @@ long LinuxParser::ReadCPUstats(int jiffyType)
   };
 
   // parse /proc/stat file for information on CPU utilization
-  std::string key ("cpu");
-  std::string filepath (kProcDirectory + kStatFilename);
-  std::string value = ParseFileForLineWithKey(filepath, key);
-  string param;
+  std::ifstream filestream(kProcDirectory + kStatFilename);
+  std::string line ; 
+  if (filestream.is_open()) {
+    getline(filestream, line); // first line contains info about overall CPU usage...
+  }
 
+  string param;
   std::istringstream linestream(value);
+  linestream >> param; // first token is the word cpu
   for ( auto element : stats ) {
       linestream >> param;
       element.second = std::stol(param);

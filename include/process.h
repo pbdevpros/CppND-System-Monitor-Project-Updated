@@ -21,9 +21,4 @@ class Process {
     int pid_ ;
 };
 
-Process::Process(int pid) {
-    HZ = sysconf(_SC_CLK_TCK);
-    pid_ = pid;
-}
-
 #endif
