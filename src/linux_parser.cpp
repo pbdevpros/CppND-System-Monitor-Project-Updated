@@ -98,7 +98,7 @@ long LinuxParser::UpTime() {
 }
 
 long LinuxParser::Jiffies() { 
-  return ReadCPUstats(2) 
+  return ReadCPUstats(2);
 }
 
 long LinuxParser::ActiveJiffies() {
@@ -123,13 +123,15 @@ vector<string> LinuxParser::CpuUtilization() {
 
   // calculate  utilization
   auto utilization = ( total - idle ) / total;
-  return Format::ElapsedTime(utilization);
+  vector<string> cpu_utils ;
+  cpu_utils.push_back(Format::ElapsedTime(utilization))
+  return cpu_utils;
 }
 
 int LinuxParser::TotalProcesses() 
 { 
   int totalProcesses;
-  std::string kTotalProcesses {"processes"};
+  std::string kTotalProcesses ("processes");
   totalProcesses = ParseFileForKey(kProcDirectory + kStatFilename, kTotalProcesses );
 
   if (totalProcesses) {
@@ -142,8 +144,8 @@ int LinuxParser::TotalProcesses()
 int LinuxParser::RunningProcesses() 
 { 
   int runningProcesses;
-  std::string kRunningProcesses{"procs_running"};
-  runningProcesses = ParseFileForKey(kProcDirectory + kStatFilename, kRunningProcesses );
+  std::string key ("procs_running");
+  runningProcesses = ParseFileForKey(kProcDirectory + kStatFilename, key);
   if (runningProcesses) {
     return runningProcesses;
   } else {
@@ -152,7 +154,7 @@ int LinuxParser::RunningProcesses()
 }
 
 string LinuxParser::Command(int pid) {
-  string pid_string = to_string(pid); 
+  string pid_string (to_string(pid)); 
   string command ;
   std::fstream stream ( kProcDirectory + pid_string + kCmdlineFilename );
   if ( stream.is_open()) {
@@ -162,14 +164,14 @@ string LinuxParser::Command(int pid) {
 }
 
 string LinuxParser::Ram(int pid) {
-  string key = "VmSize:"
+  string key ("VmSize:")
   auto memKB = stol(ParseFileForKey( kProcDirectory + to_string(pid) kStatusFilename, key));
   float memMB = memKB / 1024 ; 
   return to_string(memMB);
 }
 
 string LinuxParser::Uid(int pid) { 
-  string key = "Uid:"
+  string key ("Uid:")
   auto Uid = ParseFileForKey( kProcDirectory + to_string(pid) + kStatusFilename, key);
   return Uid;
 }
