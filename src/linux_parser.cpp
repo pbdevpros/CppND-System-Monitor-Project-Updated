@@ -11,6 +11,10 @@ using std::vector;
 
 static constexpr int WAITTIME (1);
 string ParseFileForKey(std::string filepath, std::string key);
+string ParserFileForLineWithKey(string filename, string key);
+string StrRemoveWhiteSpace(string target);
+string StrRemoveKey(string target, string key, bool isAfter);
+string StrReplaceString(string target, string sub);
 
 string LinuxParser::OperatingSystem() {
   string line;
@@ -68,13 +72,27 @@ vector<int> LinuxParser::Pids() {
 
 float LinuxParser::MemoryUtilization() 
 { 
-  float totalUsedMem;
-  int memTotal, memFree;
+  float totalUsedMem, memTotal, memFree;
   string key_mem_total ("MemTotal" ), key_mem_free ("MemFree");
   
-  // parse files for key
-  memTotal = std::stoi(ParseFileForKey(kProcDirectory + kMeminfoFilename, key_mem_total));
-  memFree = std::stoi(ParseFileForKey(kProcDirectory + kMeminfoFilename, key_mem_free));
+  // parse /proc/meminfo for the given keys
+  string sMemTotal = ParserFileForLineWithKey(kProcDirectory + kMeminfoFilename, key_mem_total);
+  string sMemFree = ParserFileForLineWithKey(kProcDirectory + kMeminfoFilename, key_mem_free);
+
+  // parse through string for details
+  bool isAfter = true;
+  sMemTotal = StrRemoveKey(sMemTotal, key_mem_total, isAfter);
+  sMemFree = StrRemoveKey(sMemFree, key_mem_free, isAfter);
+  
+  string misc_chars ("KB");
+  sMemTotal = StrRemoveKey(sMemTotal, misc_chars, !isAfter);
+  sMemFree = StrRemoveKey(sMemFree, misc_chars, !isAfter);
+
+  sMemTotal = StrRemoveWhiteSpace(sMemTotal);
+  sMemFree = StrRemoveWhiteSpace(sMemFree);
+
+  memTotal = std::stoi(sMemTotal);
+  memFree = std::stoi(sMemFree);
 
   // calclate % mem utilized
   if (memTotal && memFree) {
@@ -164,7 +182,7 @@ string LinuxParser::Command(int pid) {
 
 string LinuxParser::Ram(int pid) {
   string key ("VmSize:");
-  long memKB = std::stol(ParseFileForKey( kProcDirectory + to_string(pid) + kStatusFilename, key));
+  float memKB = std::stof(ParseFileForKey( kProcDirectory + to_string(pid) + kStatusFilename, key));
   float memMB = memKB / 1024 ; 
   return to_string(memMB);
 }
@@ -257,21 +275,40 @@ long LinuxParser::ActiveJiffies(int pid) {
 string ParseFileForKey(std::string filepath, std::string key)
 {
   std::string param, line, value;
-  
   // parse file by each line
   std::ifstream filestream(filepath);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
-      while (linestream >> param >> value) {
-        if (param == key) {
-          return value;
-        }
+      auto found = line.find(key);
+      if ( found != std::string::npos ) {
+        value = line.substr( found + key.length() + 1, line.find(" ")); // find all characters after the key (and whitespace directly after it) and before the next whitespace.
+        return value;
       }
     }
   }
   // could not find key
   return NULL;
+}
+
+
+string ParserFileForLineWithKey(string filename, string key)
+{
+  std::string param, line, value;
+  
+  // parse file by each line
+  std::ifstream filestream(filename);  
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::istringstream linestream(line);
+      auto found = line.find(key);
+      if ( found != std::string::npos ) {
+        return line;
+      }
+    }
+  }
+
+  return string();
 }
 
 /// @brief Load total CPU stats from /proc/stat and return number of jiffies
@@ -324,4 +361,35 @@ long LinuxParser::ReadCPUstats(int jiffyType)
   } else {
     throw 255;
   }
+}
+
+string StrRemoveWhiteSpace(string target)
+{
+  std::string::iterator end_pos = std::remove(target.begin(), target.end(), ' '); 
+  target.erase(end_pos, target.end());
+  return target;
+}
+
+/// @brief Removes a given key from a string.
+/// @param isAfter When true, will return a substring of all characters after the key in the given string.
+string StrRemoveKey(string target, string key, bool isAfter)
+{
+  if (isAfter){
+    target = target.substr(target.find(key) + key.length() + 1); 
+  } else {
+    target = target.substr(0, target.find(key) - 1); 
+  }
+
+  return target;
+}
+
+/// @brief Replaces a given substring with whitespace
+string StrReplaceString(string target, string substring)
+{
+  int len = substring.length();
+  for ( int i = 0; i < len; i++ )
+  {
+    std::replace(target.begin(), target.end(), substring[i], ' ');
+  }
+  return target;
 }
