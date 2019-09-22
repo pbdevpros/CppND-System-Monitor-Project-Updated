@@ -3,7 +3,6 @@
 
 #include <string>
 #include <unistd.h>
-#include <linux/delay.h>
 
 class Process {
  public:

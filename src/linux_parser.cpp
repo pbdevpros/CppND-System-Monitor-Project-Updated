@@ -74,8 +74,8 @@ float LinuxParser::MemoryUtilization()
   std::vector<std::string> kMemTotal {"MemTotal" }, kMemFree {"MemFree"};
   
   // parse files for key
-  memTotal = ParseFileForKey<int>(kProcDirectory + kMeminfoFilename, kMemTotal);
-  memFree = ParseFileForKey<int>(kProcDirectory + kMeminfoFilename, kMemFree);
+  memTotal = ParseFileForKey(kProcDirectory + kMeminfoFilename, kMemTotal);
+  memFree = ParseFileForKey(kProcDirectory + kMeminfoFilename, kMemFree);
 
   // calclate % mem utilized
   if (memTotal && memFree) {
