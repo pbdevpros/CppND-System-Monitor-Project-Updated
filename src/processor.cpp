@@ -11,11 +11,11 @@ Processor::Processor()
 
 float Processor::Utilization() 
 { 
-    int prevIdle = idle_;
-    int prevTotal = total_;
+    float prevIdle = idle_;
+    float prevTotal = total_;
     SaveUtilizationStatistics();
-    int diffTotal = total_ - prevTotal;
-    int diffIdle = idle_ - prevIdle;
+    float diffTotal = total_ - prevTotal;
+    float diffIdle = idle_ - prevIdle;
     return ( (diffTotal - diffIdle) / diffTotal ) ;
 }
 

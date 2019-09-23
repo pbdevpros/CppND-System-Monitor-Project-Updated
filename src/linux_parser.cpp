@@ -140,9 +140,13 @@ vector<string> LinuxParser::CpuUtilization() {
   idle -= prev_idle;
 
   // calculate  utilization
-  auto utilization = ( total - idle ) / total;
   vector<string> cpu_utils ;
-  cpu_utils.push_back(Format::ElapsedTime(utilization));
+  string str_util ("0.0");
+  if ( total > 0 )  {
+    long utilization = ( total - idle ) / total;
+    str_util = Format::ElapsedTime(utilization);
+  }
+  cpu_utils.push_back(str_util);
   return cpu_utils;
 }
 
