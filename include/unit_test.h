@@ -9,6 +9,7 @@ namespace UnitTest {
     int PIDUsernameTest();
     int TotalProcessesTest();
     int RunningProcessesTest();
+    int CPUUtilizationTest();
 };
 
 #endif

@@ -37,3 +37,11 @@ int UnitTest::RunningProcessesTest()
     std::cout << "Running Processes is: " << num << std::endl;
     return 0;
 }
+
+int UnitTest::CPUUtilizationTest()
+{
+    std::cout << "Testing the LinuxParser::ReadCPUstats() function." << std::endl;
+    auto active_jiffies = LinuxParser::ReadCPUstats(1);
+    std::cout << "Total cpu usage is: \t" << Format::ElapsedTime(active_jiffies) << std::endl ;
+    return 0;
+}

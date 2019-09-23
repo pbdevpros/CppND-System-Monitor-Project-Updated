@@ -12,7 +12,8 @@ int main() {
 void testLinuxParser()
 {
     UnitTest::myLinuxParserTest();
-    UnitTest::PID_Username();
+    UnitTest::PIDUsernameTest();
     UnitTest::TotalProcessesTest();
     UnitTest::RunningProcessesTest();
+    UnitTest::CPUUtilizationTest();
 }
