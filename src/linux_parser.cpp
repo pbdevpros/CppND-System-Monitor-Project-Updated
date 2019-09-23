@@ -248,7 +248,7 @@ string LinuxParser::User(int pid) {
 
 long LinuxParser::UpTime(int pid) { 
   long int sys_uptime = UpTime();
-  long int pid_uptime ;
+  long int pid_uptime (0);
   string line ;
   int counter = 0;
   int field = 22 ; // pid up time is the 22nd field in /proc/[pid]/stat
@@ -262,7 +262,8 @@ long LinuxParser::UpTime(int pid) {
       if (counter == (field - 1) ) { 
         // difference between time when system and process went up
         pid_uptime = stol(line.substr(0, index)) ; 
-        return (pid_uptime - sys_uptime) ;
+        float fpid_uptime = pid_uptime / sysconf(_SC_CLK_TCK);
+        return (sys_uptime - fpid_uptime) ;
       }
       line = line.substr(index+1);
       index = line.find(" ") ;

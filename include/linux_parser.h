@@ -7,6 +7,7 @@
 #include <sstream>
 #include <cstring>
 #include <cctype>
+#include <unistd.h>
 #include "format.h"
 
 namespace LinuxParser {
