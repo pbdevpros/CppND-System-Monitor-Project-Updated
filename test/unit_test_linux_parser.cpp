@@ -21,3 +21,11 @@ int UnitTest::PID_Username()
     std::cout << "username is: " << username << std::endl;
     return 0;
 }
+
+int UnitTest::TotalProcessesTest()
+{
+    std::cout << "Testing the Total Processes function." << std::endl;
+    int num = LinuxParser::TotalProcesses() ;
+    std::cout << "Total Processes is: " << num << std::endl;
+    return 0;
+}

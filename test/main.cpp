@@ -13,4 +13,5 @@ void testLinuxParser()
 {
     UnitTest::myLinuxParserTest();
     UnitTest::PID_Username();
+    UnitTest::TotalProcessesTest();
 }

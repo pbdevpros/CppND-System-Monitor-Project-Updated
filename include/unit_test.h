@@ -7,6 +7,7 @@
 namespace UnitTest {
     int myLinuxParserTest();
     int PID_Username();
+    int TotalProcessesTest();
 };
 
 #endif
