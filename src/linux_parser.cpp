@@ -181,12 +181,26 @@ string LinuxParser::Command(int pid) {
   return command;
 }
 
+
 string LinuxParser::Ram(int pid) {
   string key ("VmSize:");
-  float memKB = std::stof(ParseFileForKey( kProcDirectory + to_string(pid) + kStatusFilename, key));
+  string line = ParserFileForLineWithKey( kProcDirectory + to_string(pid) + kStatusFilename, key);
+  float memKB (0.00);
+
+  // parse out bytes
+  bool isAfter = true;
+  line = StrRemoveKey(line, key, isAfter);
+  std::size_t found = line.find_first_of("0123456789");
+  if ( found != std::string::npos) {
+    line = line.substr(found, line.find(" ", found));
+    line = StrRemoveWhiteSpace(line);
+    memKB = std::stof(line);
+  }
   float memMB = memKB / 1024 ; 
   memMB = ceil(memMB * 1000 ) / 1000;
-  return to_string(memMB);
+  string str_memMB = to_string(memMB);
+  str_memMB = str_memMB.substr(0, str_memMB.find('.')+4);
+  return str_memMB; // return formatted, to 3 decimal placess
 }
 
 string LinuxParser::Uid(int pid) { 
