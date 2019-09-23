@@ -15,11 +15,12 @@ class Process {
   std::string Ram();
   long int UpTime();
   bool operator<(Process const& a) const;
+  bool operator>(const Process& a) const;
   float HZ {};
 
  private:
   int pid_ ;
-  float total_ {0}; // total time running
+  float uptime_ {0}; // total time running
   float active_ {0}; // total active time
 };
 

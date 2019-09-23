@@ -14,11 +14,11 @@ Process::Process(int pid) {
 int Process::Pid() { return pid_; }
 
 float Process::CpuUtilization() const {
-    float new_total = LinuxParser::UpTime(pid_) / HZ ;
-    float new_active = LinuxParser::ActiveJiffies(pid_) / HZ ;
-    new_total -= ( total_ / HZ );
-    new_active -= ( active_ / HZ );
-    return ( new_active / new_total );
+    float uptime_new = LinuxParser::UpTime(pid_) ;
+    float active_new = LinuxParser::ActiveJiffies(pid_) / HZ ;
+    uptime_new -= uptime_ ;
+    active_new -= active_ ;
+    return ( active_new / uptime_new );
 }
 
 std::string Process::Command() { return LinuxParser::Command(pid_); }
@@ -30,6 +30,9 @@ std::string Process::User() { return LinuxParser::User(pid_); }
 long int Process::UpTime() { return LinuxParser::UpTime(pid_); }
 
 bool Process::operator<(Process const& a) const { 
-    if ( CpuUtilization() < a.CpuUtilization() ) return true; 
-    return false;
+    return CpuUtilization() < a.CpuUtilization();
+}
+
+bool Process::operator>(const Process& a) const {
+  return CpuUtilization() > a.CpuUtilization();
 }
