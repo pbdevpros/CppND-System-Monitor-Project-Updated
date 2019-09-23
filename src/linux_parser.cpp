@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <vector>
 #include <map>
+#include <math.h>
 #include "linux_parser.h"
 
 using std::stof;
@@ -184,6 +185,7 @@ string LinuxParser::Ram(int pid) {
   string key ("VmSize:");
   float memKB = std::stof(ParseFileForKey( kProcDirectory + to_string(pid) + kStatusFilename, key));
   float memMB = memKB / 1024 ; 
+  memMB = ceil(memMB * 1000 ) / 1000;
   return to_string(memMB);
 }
 
