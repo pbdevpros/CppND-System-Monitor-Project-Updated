@@ -30,7 +30,7 @@ std::string Process::User() { return LinuxParser::User(pid_); }
 long int Process::UpTime() { return LinuxParser::UpTime(pid_); }
 
 bool Process::operator<(Process const& a) const { 
-    if (CpuUtilization() < a.CpuUtilization()) return true;
+    if ( CpuUtilization() <  a.CpuUtilization()) return true;
   	return false;
 }
 
