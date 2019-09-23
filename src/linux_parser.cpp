@@ -41,13 +41,13 @@ string LinuxParser::OperatingSystem() {
 }
 
 string LinuxParser::Kernel() {
-  string os, kernel;
+  string os, version, kernel;
   string line;
   std::ifstream stream(kProcDirectory + kVersionFilename);
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream linestream(line);
-    linestream >> os >> kernel;
+    linestream >> os >> version >> kernel;
   }
   return kernel;
 }
@@ -142,7 +142,13 @@ vector<string> LinuxParser::CpuUtilization() {
   idle -= prev_idle;
 
   // calculate  utilization
-  auto utilization = ( total - idle ) / total;
+  std::cout << "idle is : " << idle << std::endl;
+  std::cout << "total is : " << total << std::endl;
+  long utilization (0);
+  if ( total > 0 )  {
+    utilization = ( total - idle ) / total;
+  }
+  std::cout << "utilization is: " << utilization << std::endl;
   vector<string> cpu_utils ;
   cpu_utils.push_back(Format::ElapsedTime(utilization));
   return cpu_utils;
@@ -185,10 +191,24 @@ string LinuxParser::Command(int pid) {
 
 string LinuxParser::Ram(int pid) {
   string key ("VmSize:");
-  float memKB = std::stof(ParseFileForKey( kProcDirectory + to_string(pid) + kStatusFilename, key));
+  string line = ParserFileForLineWithKey( kProcDirectory + to_string(pid) + kStatusFilename, key);
+  float memKB (0.00);
+
+  // parse out bytes
+  bool isAfter = true;
+  line = StrRemoveKey(line, key, isAfter);
+  std::size_t found = line.find_first_of("0123456789");
+  if ( found != std::string::npos) {
+    std::cout << "Ram is: " << line << std::endl;
+    line = line.substr(found, line.find(" ", found));
+    line = StrRemoveWhiteSpace(line);
+    memKB = std::stof(line);
+  }
   float memMB = memKB / 1024 ; 
   memMB = ceil(memMB * 1000 ) / 1000;
-  return to_string(memMB);
+  string str_memMB = to_string(memMB);
+  str_memMB = str_memMB.substr(0, str_memMB.find('.')+4);
+  return str_memMB; // return formatted, to 3 decimal placess
 }
 
 string LinuxParser::Uid(int pid) { 
@@ -199,10 +219,12 @@ string LinuxParser::Uid(int pid) {
   bool isAfter = true;
   auto uid = StrRemoveKey(line, key, isAfter);
   std::size_t found = uid.find_first_of("0123456789");
+  std::cout << "Found is:\t" << found << std::endl;
   if ( found != std::string::npos) {
     std::cout << "Uid is: " << uid << std::endl;
     uid = uid.substr(found, uid.find(" ", found));
     uid = StrRemoveWhiteSpace(uid);
+    std::cout << "new removed UId is: " << uid << " no" << std::endl;
   } else {
     throw 255; // the file must have been parsed incorrectly!
   }
@@ -212,7 +234,8 @@ string LinuxParser::Uid(int pid) {
 string LinuxParser::User(int pid) { 
   string line ;
   string username {} ;
-  string uid = ":" + Uid(pid) + ":"; // use the colons as delimeters
+  string uid_initial ( Uid(pid) ); // use the colons as delimeters
+  string uid = ":" + uid_initial + ":"; // use the colons as delimeters
   std::ifstream fstream ( kPasswordPath );
   if (fstream.is_open()) {
     while (getline( fstream, line ) ) {
@@ -242,7 +265,8 @@ long LinuxParser::UpTime(int pid) {
       if (counter == (field - 1) ) { 
         // difference between time when system and process went up
         pid_uptime = stol(line.substr(0, index)) ; 
-        return (sys_uptime - pid_uptime) ; 
+        float fpid_uptime = pid_uptime / sysconf(_SC_CLK_TCK);
+        return (sys_uptime - fpid_uptime) ;
       }
       line = line.substr(index+1);
       index = line.find(" ") ;

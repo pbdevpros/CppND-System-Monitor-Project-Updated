@@ -41,7 +41,32 @@ int UnitTest::RunningProcessesTest()
 int UnitTest::CPUUtilizationTest()
 {
     std::cout << "Testing the LinuxParser::ReadCPUstats() function." << std::endl;
-    auto active_jiffies = LinuxParser::ReadCPUstats(1);
-    std::cout << "Total cpu usage is: \t" << Format::ElapsedTime(active_jiffies) << std::endl ;
+    std::vector<std::string> active_jiffies = LinuxParser::CpuUtilization();
+    std::cout << "Total cpu usage is: \t" << active_jiffies[0] << std::endl ;
+    return 0;
+}
+
+int UnitTest::PIDRamTest() 
+{
+    std::cout << "Testing the LinuxParser::Ram() function." << std::endl;
+    auto ram = LinuxParser::Ram(1);
+    std::cout << "PID ram is: \t" << ram << std::endl ;
+    return 0;
+}
+
+
+int UnitTest::PIDUptime() 
+{
+    std::cout << "Testing the LinuxParser::UpTime() function." << std::endl;
+    auto uptime = LinuxParser::UpTime(1);
+    std::cout << "PID uptime is: \t" << uptime << std::endl ;
+    return 0;
+}
+
+int UnitTest::PIDCPUUtil()
+{
+    std::cout << "Testing the LinuxParser::ActiveJiffies() function." << std::endl;
+    auto a_js = LinuxParser::ActiveJiffies(1);
+    std::cout << "PID active jiffies is: \t" << a_js << std::endl ;
     return 0;
 }
