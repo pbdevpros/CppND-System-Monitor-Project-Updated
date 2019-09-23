@@ -12,7 +12,11 @@ std::string Format::ElapsedTime(long seconds) {
         long fseconds = seconds % MINUTE;
         long fminutes = ( (long) seconds / MINUTE ) % MINUTE;
         long fhours = (long) seconds / HOUR;
-        ftime = std::to_string(fhours) + ":" + std::to_string(fminutes) + ":" + std::to_string(fseconds) ;
+        std::stringstream formatstream;
+        formatstream << std::setfill('0') << std::setw(2) << fhours << ":";
+        formatstream << std::setfill('0') << std::setw(2) << fminutes << ":";  
+        formatstream << std::setfill('0') << std::setw(2) << fseconds; 
+        ftime = formatstream.str();
     }
     return ftime; 
 }
