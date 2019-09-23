@@ -12,3 +12,12 @@ int UnitTest::myLinuxParserTest() {
     std::cout << "Uptime is: " << uptime << std::endl; 
     return 0;
 }
+
+int UnitTest::PID_Username()
+{
+    std::cout << "Testing the User(pid) function." << std::endl;
+    int pid = 1;
+    std::string username = LinuxParser::User(pid);
+    std::cout << "username is: " << username << std::endl;
+    return 0;
+}

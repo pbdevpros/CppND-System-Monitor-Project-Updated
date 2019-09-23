@@ -12,4 +12,5 @@ int main() {
 void testLinuxParser()
 {
     UnitTest::myLinuxParserTest();
+    UnitTest::PID_Username();
 }
