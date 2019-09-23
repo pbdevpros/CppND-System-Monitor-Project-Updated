@@ -5,6 +5,8 @@
 #include <regex>
 #include <string>
 #include <sstream>
+#include <cstring>
+#include <cctype>
 #include "format.h"
 
 namespace LinuxParser {

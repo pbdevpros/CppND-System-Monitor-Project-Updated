@@ -208,18 +208,25 @@ string LinuxParser::Ram(int pid) {
 }
 
 string LinuxParser::Uid(int pid) { 
-  string key ("Uid:");
-  string line = ParserFileForLineWithKey( kProcDirectory + to_string(pid) + kStatusFilename, key);
-  
+  string key ("Uid:"), final_uid, uid_sub;
+  string line = ParserFileForLineWithKey( kProcDirectory + std::to_string(pid) + kStatusFilename, key);
+
   // parse out user ID, the first column
   bool isAfter = true;
   auto uid = StrRemoveKey(line, key, isAfter);
   std::size_t found = uid.find_first_of("0123456789");
   if ( found != std::string::npos) {
-    uid = uid.substr(found, uid.find(" ", found));
-    uid = StrRemoveWhiteSpace(uid);
+    int counter = 0;
+    int len = uid.length();
+    for (int i = 0; i < len; i++) {
+    	if (std::isspace(uid[i])) {
+          	final_uid = uid.substr(0, counter);
+          	return final_uid;
+  	 	} 
+        counter++;
+  	 }
   }
-  return uid;
+  return final_uid;
 }
 
 string LinuxParser::User(int pid) { 

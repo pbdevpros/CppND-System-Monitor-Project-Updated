@@ -16,8 +16,8 @@ int Process::Pid() { return pid_; }
 float Process::CpuUtilization() const {
     float new_total = LinuxParser::UpTime(pid_) / HZ ;
     float new_active = LinuxParser::ActiveJiffies(pid_) / HZ ;
-    new_total -= total_ / HZ;
-    new_active -= active_ / HZ ;
+    new_total -= ( total_ / HZ );
+    new_active -= ( active_ / HZ );
     return ( new_active / new_total );
 }
 
