@@ -18,7 +18,9 @@ class Process {
   float HZ {};
 
  private:
-    int pid_ ;
+  int pid_ ;
+  float total_ {0}; // total time running
+  float active_ {0}; // total active time
 };
 
 #endif
