@@ -255,7 +255,7 @@ long LinuxParser::UpTime(int pid) {
       if (counter == (field - 1) ) { 
         // difference between time when system and process went up
         pid_uptime = stol(line.substr(0, index)) ; 
-        return (sys_uptime - pid_uptime) ; 
+        return (pid_uptime - sys_uptime) ;
       }
       line = line.substr(index+1);
       index = line.find(" ") ;
