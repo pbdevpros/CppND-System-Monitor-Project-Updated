@@ -13,7 +13,7 @@ int UnitTest::myLinuxParserTest() {
     return 0;
 }
 
-int UnitTest::PID_Username()
+int UnitTest::PIDUsernameTest()
 {
     std::cout << "Testing the User(pid) function." << std::endl;
     int pid = 1;
@@ -27,5 +27,13 @@ int UnitTest::TotalProcessesTest()
     std::cout << "Testing the Total Processes function." << std::endl;
     int num = LinuxParser::TotalProcesses() ;
     std::cout << "Total Processes is: " << num << std::endl;
+    return 0;
+}
+
+int UnitTest::RunningProcessesTest()
+{
+    std::cout << "Testing the LinuxParser::RunningProcesses() function." << std::endl;
+    int num = LinuxParser::RunningProcesses() ;
+    std::cout << "Running Processes is: " << num << std::endl;
     return 0;
 }
