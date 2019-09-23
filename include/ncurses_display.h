@@ -2,9 +2,10 @@
 #define NCURSES_DISPLAY_H
 
 #include <curses.h>
-
+#include "system.h"
 #include "process.h"
 #include "system.h"
+#include "format.h"
 
 namespace NCursesDisplay {
 void Display(System& system, int n = 10);

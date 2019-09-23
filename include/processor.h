@@ -1,12 +1,17 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
 
+#include "linux_parser.h"
+
 class Processor {
  public:
-  float Utilization();  // TODO: See src/processor.cpp
+  Processor() ;
+  float Utilization();
 
-  // TODO: Declare any necessary private members
  private:
+  void SaveUtilizationStatistics();
+  int total_ {0}; // total time running
+  int idle_ {0}; // total idle time
 };
 
 #endif

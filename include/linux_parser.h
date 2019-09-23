@@ -4,6 +4,11 @@
 #include <fstream>
 #include <regex>
 #include <string>
+#include <sstream>
+#include <cstring>
+#include <cctype>
+#include <unistd.h>
+#include "format.h"
 
 namespace LinuxParser {
 // Paths
@@ -45,6 +50,7 @@ long Jiffies();
 long ActiveJiffies();
 long ActiveJiffies(int pid);
 long IdleJiffies();
+long ReadCPUstats(int);
 
 // Processes
 std::string Command(int pid);
