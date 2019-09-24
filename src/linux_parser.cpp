@@ -3,12 +3,19 @@
 #include <vector>
 #include <map>
 #include <math.h>
+#include <iostream>
 #include "linux_parser.h"
+
+
 
 using std::stof;
 using std::string;
 using std::to_string;
 using std::vector;
+using std::cout;
+
+#define printVariableNameAndValue(x) cout<<"The name of variable **"<<(#x)<<"** and the value of variable is => "<<x<<"\n"
+
 
 static constexpr int WAITTIME (1);
 string ParseFileForKey(std::string filepath, std::string key);
@@ -177,17 +184,18 @@ int LinuxParser::RunningProcesses()
 
 string LinuxParser::Command(int pid) {
   string pid_string (to_string(pid)); 
-  string command ;
-  std::fstream stream ( kProcDirectory + pid_string + kCmdlineFilename );
+  string command ("NA") ;
+  std::ifstream stream ( kProcDirectory + pid_string + kCmdlineFilename );
   if ( stream.is_open()) {
-    getline(stream, command);
+    std::getline(stream, command);
+    stream.close();
   }
   return command;
 }
 
 
 string LinuxParser::Ram(int pid) {
-  string key ("VmSize:");
+  string key ("VmData:"); // NB: Using physical disk size instead of VmSize, http://man7.org/linux/man-pages/man5/proc.5.html
   string line = ParserFileForLineWithKey( kProcDirectory + to_string(pid) + kStatusFilename, key);
   float memKB (0.00);
 

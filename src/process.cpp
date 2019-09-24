@@ -21,7 +21,13 @@ float Process::CpuUtilization() const {
     return ( active_new / uptime_new );
 }
 
-std::string Process::Command() { return LinuxParser::Command(pid_); }
+std::string Process::Command() { 
+  std::string command = LinuxParser::Command(pid_); 
+  if (command.length() > 40) {
+     return (command.substr(0, 40) + "..."); 
+  }
+  return command;
+}
 
 std::string Process::Ram() { return LinuxParser::Ram(pid_); }
 
