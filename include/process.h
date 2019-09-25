@@ -4,6 +4,7 @@
 #include <string>
 #include <unistd.h>
 #include "linux_parser.h"
+#include "logger.h"
 
 class Process {
  public:

@@ -9,6 +9,7 @@
 #include <cctype>
 #include <unistd.h>
 #include "format.h"
+#include "logger.h"
 
 namespace LinuxParser {
 // Paths

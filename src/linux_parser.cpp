@@ -3,19 +3,12 @@
 #include <vector>
 #include <map>
 #include <math.h>
-#include <iostream>
 #include "linux_parser.h"
-
-
 
 using std::stof;
 using std::string;
 using std::to_string;
 using std::vector;
-using std::cout;
-
-#define printVariableNameAndValue(x) cout<<"The name of variable **"<<(#x)<<"** and the value of variable is => "<<x<<"\n"
-
 
 static constexpr int WAITTIME (1);
 string ParseFileForKey(std::string filepath, std::string key);
@@ -38,6 +31,7 @@ string LinuxParser::OperatingSystem() {
       while (linestream >> key >> value) {
         if (key == "PRETTY_NAME") {
           std::replace(value.begin(), value.end(), '_', ' ');
+          filestream.close();
           return value;
         }
       }
@@ -54,6 +48,7 @@ string LinuxParser::Kernel() {
     std::getline(stream, line);
     std::istringstream linestream(line);
     linestream >> os >> version >> kernel;
+    stream.close();
   }
   return kernel;
 }
@@ -118,6 +113,7 @@ long LinuxParser::UpTime() {
       std::getline(f, line);
       std::istringstream linestream(line);
       linestream >> token;
+      f.close();
   }
   return (long) stof(token); 
 }
@@ -185,9 +181,11 @@ int LinuxParser::RunningProcesses()
 string LinuxParser::Command(int pid) {
   string pid_string (to_string(pid)); 
   string command ("NA") ;
+  myLogger(0, command);
   std::ifstream stream ( kProcDirectory + pid_string + kCmdlineFilename );
   if ( stream.is_open()) {
     std::getline(stream, command);
+    myLogger(0, "Read from stream: " + command);
     stream.close();
   }
   return command;
@@ -247,6 +245,7 @@ string LinuxParser::User(int pid) {
       auto found = line.find(uid);
       if ( found != std::string::npos ) {
         username = line.substr(0, line.find(":"));
+        fstream.close();
         return username;
       }
     }
@@ -271,6 +270,7 @@ long LinuxParser::UpTime(int pid) {
         // difference between time when system and process went up
         pid_uptime = stol(line.substr(0, index)) ; 
         float fpid_uptime = pid_uptime / sysconf(_SC_CLK_TCK);
+        fstream.close();
         return (sys_uptime - fpid_uptime) ;
       }
       line = line.substr(index+1);
@@ -309,6 +309,7 @@ long LinuxParser::ActiveJiffies(int pid) {
       counter++;
     } 
     utime += stime + cutime + cstime;
+    fstream.close();
   }
   return utime;
 }
@@ -328,6 +329,7 @@ string ParseFileForKey(std::string filepath, std::string key)
       auto found = line.find(key);
       if ( found != std::string::npos ) {
         value = line.substr( found + key.length() + 1, line.find(" ")); // find all characters after the key (and whitespace directly after it) and before the next whitespace.
+        filestream.close();
         return value;
       }
     }
@@ -348,6 +350,7 @@ string ParserFileForLineWithKey(string filename, string key)
       std::istringstream linestream(line);
       auto found = line.find(key);
       if ( found != std::string::npos ) {
+        filestream.close();
         return line;
       }
     }
@@ -382,6 +385,7 @@ long LinuxParser::ReadCPUstats(int jiffyType)
   std::string line ; 
   if (filestream.is_open()) {
     getline(filestream, line); // first line contains info about overall CPU usage...
+    filestream.close();
   }
 
   string param;
