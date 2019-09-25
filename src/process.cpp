@@ -23,8 +23,8 @@ float Process::CpuUtilization() const {
 
 std::string Process::Command() { 
   std::string command = LinuxParser::Command(pid_); 
-  myLogger(0,"Process::Command received: " + command);
   if (command.length() > 40) {
+     myLogger(0,"Process::Command received: " + command.substr(0, 40) + "...");
      return (command.substr(0, 40) + "..."); 
   }
   return command;

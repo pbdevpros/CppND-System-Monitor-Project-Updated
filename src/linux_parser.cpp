@@ -180,13 +180,12 @@ int LinuxParser::RunningProcesses()
 
 string LinuxParser::Command(int pid) {
   string pid_string (to_string(pid)); 
-  string command ("NA") ;
-  myLogger(0, command);
-  std::ifstream stream ( kProcDirectory + pid_string + kCmdlineFilename );
-  if ( stream.is_open()) {
-    std::getline(stream, command);
-    myLogger(0, "Read from stream: " + command);
-    stream.close();
+  string command;
+  std::ifstream ifs ( kProcDirectory + pid_string + kCmdlineFilename );
+  if ( ifs.is_open()) {
+  	command.assign( (std::istreambuf_iterator<char>(ifs) 	),
+                (	std::istreambuf_iterator<char>()    ) );
+    ifs.close();
   }
   return command;
 }
